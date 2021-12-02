@@ -1,0 +1,5 @@
+pcd_venv/
+src/
+saved/
+include/
+*.pyc
