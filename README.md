@@ -31,6 +31,7 @@ By default, the data are saved in the `saved` folder inside the `vision_utils` p
 
 # TODO
 - [ ] get rid of `cv_bridge` dependency to work with every type of image both in Python2 and 3
+	- [ ] adapt to CompressedImages or Images
 	- [ ] create a unique callback, acquiring RGB, depth and also point cloud in synchro
 - [ ] 'map' the TIAGo topics, propose different default topics wheter the nodes are run on the real robot or in simulation
 - [ ] divide the RGB and depth acquisition (put 'options' in the current node or create different nodes)
