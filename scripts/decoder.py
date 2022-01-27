@@ -3,8 +3,34 @@ import cv2
 import struct
 import numpy as np
 
+import rospy
+from sensor_msgs.msg import Image, CompressedImage
+
 # NOTE: requires OpenCV >= 3.0 (as the one I have locally installed is), with older versions,
 #       cv2.IMREAD_UNCHANGED and cv2.IMREAD_COLOR should be adapted
+
+def check_for_type(topic):
+    '''
+    Check wheter a topic is publishing Image or CompressedImage messages.
+    topic   [string] the name of the topic to check
+    NOTE: the timeout could be exposed as an argument
+    '''
+    try:    # assume the topic is publishing Image messages
+        encoding = rospy.wait_for_message(topic, Image, timeout = 1).encoding
+        msg_type = Image
+    except rospy.ROSException:
+        pass # fallback to CompressedImage
+    try:    # check if the topic is publishing CompressedImage messages instead
+        encoding, __ = rospy.wait_for_message(topic, 
+                                              CompressedImage, 
+                                              timeout = 1
+                                              ).format.split(';')
+        encoding = encoding.strip()
+        msg_type = CompressedImage
+    except rospy.ROSException:
+        rospy.logerr('No Image or CompressedImage can be received on topic', topic)
+
+    return msg_type, encoding
 
 def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
     '''
@@ -49,8 +75,8 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
     else:
         raise Exception("Decoding of '" + depth_fmt + "' is not implemented!")
 
-    return  depth_data, # uint16 if in mm, in float32 if in m 
-            depth_fmt   # the encoding, sometimes needed
+    # Data are uint16 if in mm, in float32 if in m. Also the encoding is returned.
+    return  depth_data, depth_fmt
 
 def decode_Image_depth(msg, depth_in_m = True):
     '''
@@ -61,7 +87,7 @@ def decode_Image_depth(msg, depth_in_m = True):
         byte_array = np.fromstring(ros_depth.data, np.uint16)      # array of bytes
         depth_data = np.frombuffer(byte_array, dtype = np.uint16)  # numpy 2D array
         depth_data = depth_data / 1000 if depth_in_m else depth_data
-    else msg.encoding == "32FC1":
+    elif msg.encoding == "32FC1":
         byte_array = np.fromstring(ros_depth.data, np.float32)      # array of bytes
         depth_data = np.frombuffer(byte_array, dtype = np.float32)  # numpy 2D array
         depth_data = depth_data if depth_in_m else (depth_data * 1000).astype(np.uint16)
@@ -69,8 +95,8 @@ def decode_Image_depth(msg, depth_in_m = True):
     depth_data = np.reshape(depth_data,
                             newshape = (msg.height, msg.width)
                             )
-    return  depth_data,     # uint16 if in mm, in float32 if in m 
-            msg.encoding    # the encoding, sometimes needed
+    # Data are uint16 if in mm, in float32 if in m. Also the encoding is returned.
+    return  depth_data, depth_fmt
 
 def decode_Image_RGB(msg):
     '''
