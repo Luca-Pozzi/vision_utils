@@ -47,6 +47,15 @@ convert_rgbFloat_to_tuple = lambda rgb_float: convert_rgbUint32_to_tuple(
 
 # Convert the datatype of point cloud from Open3D to ROS PointCloud2 (XYZRGB only)
 def convertCloudFromOpen3dToRos(open3d_cloud, frame_id="odom"):
+    """Convert Open3D cloud to ROS Pointcloud2 message.
+
+    Args:
+        open3d_cloud (_type_): _description_
+        frame_id (str, optional): _description_. Defaults to "odom".
+
+    Returns:
+        _type_: _description_
+    """
     # Set "header"
     header = Header()
     header.stamp = rospy.Time.now()
@@ -69,7 +78,14 @@ def convertCloudFromOpen3dToRos(open3d_cloud, frame_id="odom"):
     return pc2.create_cloud(header, fields, cloud_data)
 
 def convertCloudFromRosToOpen3d(ros_cloud):
-    
+    """Convert ROS Pointcloud2 message into a Open3D point cloud.
+
+    Args:
+        ros_cloud (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     # Get cloud data from ros_cloud
     field_names=[field.name for field in ros_cloud.fields]
     cloud_data = list(pc2.read_points(ros_cloud, skip_nans=True, field_names = field_names))
@@ -157,7 +173,7 @@ if __name__ == "__main__":
         rospy.loginfo("Conversion and publish success ...\n")
         rospy.sleep(1)
         
-    # -- After subscribing the ros cloud, convert it back to open3d, and draw
+    # -- After subscribing the ROS cloud, convert it back to Open3D, and draw
     received_open3d_cloud = convertCloudFromRosToOpen3d(received_ros_cloud)
     print(received_open3d_cloud)
 
