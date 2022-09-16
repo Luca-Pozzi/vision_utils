@@ -22,10 +22,10 @@ Import in your script using `from vision_utils import decoder`.
 
 ## cloud_conversions.py
 
-Copy the import part and the desidered function to your script.
-The shebang of the script must be edited to point to the environment where you have installed Open3d if you want to run it as main.
+TODO
 
 # TODO
 
 - [ ] Make `cloud_conversion.py` a module and move it to the `src` folder
   - [ ] remove the `scripts` folder
+- [ ] Consider converting any ROS message into a NumPy ndarray (which can be handled by OpenCV anyway)
