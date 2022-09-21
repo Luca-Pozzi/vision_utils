@@ -36,16 +36,38 @@ def pointcloud_ros_to_numpy(msg):
     return points, rgb
 
 
+def format_ndarray_for_o3d(arr):
+    """Check if the input array is ordered (i.e. points are organized in a 2D matrix) or not. Unordered clouds are left untouched, ordered ones are flattened in order to match the (n, 3) shape required from Open3D PointCloud fields.
+
+    Args:
+        cloud (np.ndarray): The cloud to check and, possibly, flatten.
+
+    Raises:
+        ValueError: The shape of the input array is not (n, 3) or (h, w, 3).
+
+    Returns:
+        np.ndarray: The input array, reshaped to match (n, 3) shape.
+    """
+    # Remove any axes of lenght 1 (i.e. dummy dimensions).
+    arr = np.squeeze(arr)
+    # Check if cloud shape is suitable for the intended use
+    if (not arr.shape[-1] == 3) or (not len(arr.shape) <= 3):
+        raise ValueError('The input array is expected to be a numpy array with shape (n, 3) or (h, w, 3). After squeezing, the input array has shape ' + str(arr.shape))
+    
+    # Reshape the array as (n, 3). If the input array already has shape (n, 3), it remains unchanged.
+    arr = np.reshape(arr, newshape = (-1, 3))
+
+    return arr
+
 def pointcloud_ros_to_open3d(msg):
     pts, rgb = pointcloud_ros_to_numpy(msg)
     pcd = o3d.geometry.PointCloud()
-    # From Open3D documentation, the `points` attribute should be `float64 array of shape (num_points, 3)`. Hence, if the input cloud has shape (h, w, 3), it must be reshaped to 
-    # TODO
-    pcd.points = o3d.utility.Vector3dVector(pts)
+    pcd.points = o3d.utility.Vector3dVector(format_ndarray_for_o3d(pts))
     if rgb is not None:
-        # From Open3D documentation, the `colors` attribute should be `float64 array of shape (num_points, 3)`. Hence, if the input cloud has shape (h, w, 3), it must be reshaped to 
-        # TODO
-        pcd.colors = o3d.utility.Vector3dVector(rgb)
+        rgb = (rgb - rgb.min()) / (rgb.max() - rgb.min()) # normalize RGB values in the [0 1] range
+        pcd.colors = o3d.utility.Vector3dVector(format_ndarray_for_o3d(rgb))
+
+    return pcd
 
 def pointcloud_open3d_to_ros(msg):
     pass
@@ -58,9 +80,16 @@ if __name__ == "__main__":
     msg = rospy.wait_for_message('/xtion/depth_registered/points', PointCloud2)
     cloud = pointcloud_ros_to_open3d(msg)
     # Display the pointcloud to see if the conversion is correct
-
+    o3d.visualization.draw_geometries([cloud], 
+                                      lookat = [0, 0, 0],
+                                      up = [0, -1, 0],
+                                      front = [0, 0, -1],
+                                      zoom = 0.3
+                                      ) 
+    '''
     try:
         while not rospy.is_shutdown():
             pass
     except KeyboardInterrupt:
         rospy.loginfo("Shutting down.")
+    '''
