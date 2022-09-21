@@ -1,0 +1,12 @@
+<launch>
+	<!-- Launch the Gazebo simulation in a suitable world -->
+	<include file = "$(find tiago_gazebo)/launch/tiago_gazebo.launch">
+		<arg name = "public_sim"    value = "true" />
+	    <arg name = "robot"         value = "steel" />
+	    <arg name = "world"         value = "objects_on_table" />
+	</include>
+
+	<!-- Launch a simple node to lower the robot's head. The launch-prefix implements a bash-based delay to be sure the simulation has started before sending the command to the robot joint. -->
+	<node name = "move_joint" pkg = "play_motion" type = "move_joint" args = "head_2_joint -0.6 2.0" launch-prefix = "bash -c 'sleep 10.0; $0 $@' "/>
+
+</launch>
