@@ -1,3 +1,4 @@
 catkin_pkg==0.4.24
 numpy==1.19.5
 opencv_python==4.5.4.60
+git+https://github.com/eric-wieser/ros_numpy@master#egg=ros_numpy

@@ -10,10 +10,14 @@ from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
 
 def pointcloud_ros_to_numpy(msg):
-    """From: https://answers.ros.org/question/321829/color-problems-extracting-rgb-from-pointcloud2/
+    """Convert a ROS PointCloud2 message into two np.ndarrays (one for XYZ coordinates, and one for RGB values).
+    From: https://answers.ros.org/question/321829/color-problems-extracting-rgb-from-pointcloud2/
 
     Args:
-        msg (_type_): _description_
+        msg (sensor_msgs/PointCloud2): A ROS PointCloud2 message.
+
+    Returns:
+        A tuple containing a first np.ndarray (XYZ coordinates of the points in the cloud), and a second nd.array (RGB values). The second value can be None if the input PointCloud2 has no color information. 
     """
     pc = ros_numpy.numpify(msg)
     shape = pc.shape + (3, )    # add a dimension to store XYZ and RGB info
@@ -60,6 +64,14 @@ def format_ndarray_for_o3d(arr):
     return arr
 
 def pointcloud_ros_to_open3d(msg):
+    """Convert a ROS PointCloud2 message into a Open3D PointCloud object.
+
+    Args:
+        msg (sensor_msgs/PointCloud2): A ROS PointCloud2 message.
+
+    Returns:
+        open3d.geometry.PointCloud: An Open3D PointCloud object.
+    """
     pts, rgb = pointcloud_ros_to_numpy(msg)
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(format_ndarray_for_o3d(pts))
@@ -69,8 +81,10 @@ def pointcloud_ros_to_open3d(msg):
 
     return pcd
 
-def pointcloud_open3d_to_ros(msg):
-    pass
+def pointcloud_open3d_to_ros(points, rgb):
+    # Create a structured array
+    # TODO
+    #ros_numpy.merge_rgb_fields()
 
 
 if __name__ == "__main__":
@@ -86,10 +100,4 @@ if __name__ == "__main__":
                                       front = [0, 0, -1],
                                       zoom = 0.3
                                       ) 
-    '''
-    try:
-        while not rospy.is_shutdown():
-            pass
-    except KeyboardInterrupt:
-        rospy.loginfo("Shutting down.")
-    '''
+    

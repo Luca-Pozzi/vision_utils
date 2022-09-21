@@ -26,6 +26,7 @@ TODO
 
 # TODO
 
-- [ ] Make `cloud_conversion.py` a module and move it to the `src` folder
-  - [ ] remove the `scripts` folder
+- [ ] Test `pointcloud_open3d_to_ros`
+  - [ ] Make `cloud_conversion.py` a module and move it to the `src` folder
+    - [ ] remove the `scripts` folder
 - [ ] Consider converting any ROS message into a NumPy ndarray (which can be handled by OpenCV anyway)
