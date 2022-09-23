@@ -12,9 +12,9 @@ def check_for_type(topic):
     '''
     Check wheter a topic is publishing Image or CompressedImage messages.
     topic   [string] the name of the topic to check
-    NOTE: the timeout could be exposed as an argument
     '''
     try:    # assume the topic is publishing Image messages
+        # NOTE: the timeout could be exposed as an argument
         encoding = rospy.wait_for_message(topic, Image, timeout = 1).encoding
         msg_type = Image
     except rospy.ROSException:

@@ -1,13 +1,11 @@
 #!/home/luca/tiago_public_ws/src/vision_utils/pcd_venv/bin/python3
 
-import os
 import numpy as np
 import open3d as o3d
 
 import rospy
 import ros_numpy
 from sensor_msgs.msg import PointCloud2
-import sensor_msgs.point_cloud2 as pc2
 
 def pointcloud_ros_to_numpy(msg):
     """Convert a ROS PointCloud2 message into two np.ndarrays (one for XYZ coordinates, and one for RGB values).
@@ -17,7 +15,7 @@ def pointcloud_ros_to_numpy(msg):
         msg (sensor_msgs/PointCloud2): A ROS PointCloud2 message.
 
     Returns:
-        A tuple containing a first np.ndarray (XYZ coordinates of the points in the cloud), and a second nd.array (RGB values). The second value can be None if the input PointCloud2 has no color information. 
+        A tuple containing a first np.ndarray (XYZ coordinates of the points in the cloud), a second nd.array (RGB values), and a tuple (shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
     """
     pc = ros_numpy.numpify(msg)
     shape = pc.shape + (3, )    # add a dimension to store XYZ and RGB info
@@ -37,7 +35,7 @@ def pointcloud_ros_to_numpy(msg):
         rgb[..., 1] = pc['g']
         rgb[..., 2] = pc['b']
     
-    return points, rgb
+    return points, rgb, shape[:-1]
 
 
 def format_ndarray_for_o3d(arr):
@@ -72,27 +70,54 @@ def pointcloud_ros_to_open3d(msg):
     Returns:
         open3d.geometry.PointCloud: An Open3D PointCloud object.
     """
-    pts, rgb = pointcloud_ros_to_numpy(msg)
+    pts, rgb, ros_cloud_shape = pointcloud_ros_to_numpy(msg)
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(format_ndarray_for_o3d(pts))
     if rgb is not None:
         rgb = (rgb - rgb.min()) / (rgb.max() - rgb.min()) # normalize RGB values in the [0 1] range
         pcd.colors = o3d.utility.Vector3dVector(format_ndarray_for_o3d(rgb))
 
-    return pcd
+    return pcd, ros_cloud_shape
 
-def pointcloud_open3d_to_ros(points, rgb):
+def pointcloud_open3d_to_ros(cloud, h = None, w = None, merge_rgb = True):
+    xyz = np.asarray(cloud.points)
+    rgb = np.asarray(cloud.colors)
+    if h is not None and w is not None and h * w == xyz.shape[1]:
+        xyz = np.reshape(xyz, newshape = (h, w, 3))
+        rgb = np.reshape(rgb, newshape = (h, w, 3))
     # Create a structured array
-    # TODO
-    #ros_numpy.merge_rgb_fields()
+    data = np.zeros(xyz.shape[:-1],             # 1D or 2D 
+                    dtype=[('x', np.float32),
+                           ('y', np.float32),
+                           ('z', np.float32),
+                           ('r', np.uint8),
+                           ('g', np.uint8),
+                           ('b', np.uint8),
+                          ]
+                    )
+    # Fill in the fields with the point coordinates
+    data['x'] = xyz[..., 0]
+    data['y'] = xyz[..., 1]
+    data['z'] = xyz[..., 2]
+    # Fill in the fields with the RGB information.
+    data['r'] = rgb[..., 0]
+    data['g'] = rgb[..., 1]
+    data['b'] = rgb[..., 2]
+    if merge_rgb:
+        data = ros_numpy.point_cloud2.merge_rgb_fields(data)
+    
+    return ros_numpy.msgify(PointCloud2, data)
 
 
 if __name__ == "__main__":
     rospy.init_node('cloud_converter_test')
-    #sub = rospy.Subscriber('/xtion/depth_registered/points', PointCloud2,pointcloud_ros_to_open3d)
+    
+    rate = rospy.Rate(1)   #[Hz]
+    pub = rospy.Publisher('/open3d_to_ros/points', PointCloud2, queue_size = 1)
     
     msg = rospy.wait_for_message('/xtion/depth_registered/points', PointCloud2)
-    cloud = pointcloud_ros_to_open3d(msg)
+    cloud, shape = pointcloud_ros_to_open3d(msg)
+    h, w = shape
     # Display the pointcloud to see if the conversion is correct
     o3d.visualization.draw_geometries([cloud], 
                                       lookat = [0, 0, 0],
@@ -100,4 +125,12 @@ if __name__ == "__main__":
                                       front = [0, 0, -1],
                                       zoom = 0.3
                                       ) 
-    
+    try:
+        while not rospy.is_shutdown():
+            msg = pointcloud_open3d_to_ros(cloud, h = h, w = w)
+            msg.header.frame_id = 'xtion_rgb_optical_frame'
+            msg.header.stamp = rospy.Time.now()
+            pub.publish(msg)
+            rate.sleep()
+    except KeyboardInterrupt:
+        rospy.loginfo('Shutting down the node.')
