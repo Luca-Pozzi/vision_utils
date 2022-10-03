@@ -79,44 +79,73 @@ def pointcloud_ros_to_open3d(msg):
 
     return pcd, ros_cloud_shape
 
-def pointcloud_open3d_to_ros(cloud, h = None, w = None, merge_rgb = True):
+def pointcloud_open3d_to_ros(cloud, shape = None, merge_rgb = True):
     """Convert an Open3D PointCloud object into a ROS PointCloud2 message.
 
     Args:
-        cloud (open3d.geometry.PointCloud): _description_
-        h (_type_, optional): _description_. Defaults to None.
-        w (_type_, optional): _description_. Defaults to None.
-        merge_rgb (bool, optional): _description_. Defaults to True.
+        cloud (open3d.geometry.PointCloud): A Open3D PointCloud object. 
+        shape (tuple, optional): If specified should be a two-items (`h x w`) tuple with the 2D structure of the output pointcloud (i.e. points will be organized in a `h x w` matrix). Defaults to None.
+        merge_rgb (bool, optional): If `True`, . Defaults to `True`.
 
     Returns:
-        _type_: _description_
+        sensor_msgs/PointCloud2: A ROS message with the same data of the input Open3D cloud.
     """
     xyz = np.asarray(cloud.points)
-    rgb = np.asarray(cloud.colors)
-    if h is not None and w is not None and h * w == xyz.shape[1]:
-        xyz = np.reshape(xyz, newshape = (h, w, 3))
-        rgb = np.reshape(rgb, newshape = (h, w, 3))
+    if shape is not None:
+        h, w = shape    # unpack the shape tuple
+        if not h * w == xyz.shape[0]:
+            raise ValueError('Specified shape argument ' + str(shape) + ' would give ' + str(h * w) + 'points. This value does not match the number of points in the cloud ' + str(xyz.shape[0]))
+        structured = True
+    else:
+        shape = xyz.shape[0]
+        structured = False
+
+    if cloud.colors: 
+        # If the input cloud has color information, format it to be saved in the ROS cloud
+        rgb = np.asarray(cloud.colors)
+        rgb = (rgb * 255.0).astype(np.uint32)
+    else:
+        # If the input cloud does not have color info, paint it black.
+        # NOTE: this is a workaround to keep the same structure for the `data` array below (i.e. to always have `r`, `g`, and `b` fields).
+        rgb = np.zeros((xyz.shape[0], 3), dtype = np.uint32)
+    
+    if structured:
+        xyz = np.reshape(xyz, newshape = shape + (3,))
+        rgb = np.reshape(rgb, newshape = shape + (3,))
+    
     # Create a structured array
-    data = np.zeros(xyz.shape[:-1],             # 1D or 2D 
-                    dtype=[('x', np.float32),
-                           ('y', np.float32),
-                           ('z', np.float32),
-                           ('r', np.uint8),
-                           ('g', np.uint8),
-                           ('b', np.uint8),
-                          ]
+    dtypes = [('x',    np.float32),
+              ('y',    np.float32),
+              ('z',    np.float32),
+            ]
+    dtype_rgb = [('rgb', np.float32)] if merge_rgb else [('r',    np.uint8),
+                                                         ('g',    np.uint8),
+                                                         ('b',    np.uint8)
+                                                        ]
+    dtypes.extend(dtype_rgb)
+    # Fill the structured array with data
+    data = np.zeros(shape,             # 1D or 2D 
+                    dtype = dtypes
                     )
     # Fill in the fields with the point coordinates
     data['x'] = xyz[..., 0]
     data['y'] = xyz[..., 1]
     data['z'] = xyz[..., 2]
     # Fill in the fields with the RGB information.
-    data['r'] = rgb[..., 0]
-    data['g'] = rgb[..., 1]
-    data['b'] = rgb[..., 2]
+    r = rgb[..., 0]
+    g = rgb[..., 1]
+    b = rgb[..., 2]
     if merge_rgb:
-        data = ros_numpy.point_cloud2.merge_rgb_fields(data)
-    print(data)
+        '''
+        NOTE: the following two lines are taken from `ros_numpy.point_cloud2.merge_rgb_fields`
+        '''
+        rgb = np.array((r << 16) | (g << 8) | (b << 0), dtype = np.uint32)
+        rgb.dtype = np.float32
+        data['rgb'] = rgb
+    else:
+        data['r'] = r.astype(np.uint8) 
+        data['g'] = g.astype(np.uint8)
+        data['b'] = b.astype(np.uint8)
     
     return ros_numpy.msgify(PointCloud2, data)
 
@@ -129,7 +158,7 @@ if __name__ == "__main__":
     
     msg = rospy.wait_for_message('/xtion/depth_registered/points', PointCloud2)
     cloud, shape = pointcloud_ros_to_open3d(msg)
-    h, w = shape
+    '''
     # Display the pointcloud to see if the conversion is correct
     o3d.visualization.draw_geometries([cloud], 
                                       lookat = [0, 0, 0],
@@ -137,9 +166,10 @@ if __name__ == "__main__":
                                       front = [0, 0, -1],
                                       zoom = 0.3
                                       ) 
+    '''
     try:
         while not rospy.is_shutdown():
-            msg = pointcloud_open3d_to_ros(cloud) #, h = h, w = w)
+            msg = pointcloud_open3d_to_ros(cloud, shape = shape)
             msg.header.frame_id = 'xtion_rgb_optical_frame'
             msg.header.stamp = rospy.Time.now()
             pub.publish(msg)
