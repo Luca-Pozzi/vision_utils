@@ -80,6 +80,17 @@ def pointcloud_ros_to_open3d(msg):
     return pcd, ros_cloud_shape
 
 def pointcloud_open3d_to_ros(cloud, h = None, w = None, merge_rgb = True):
+    """Convert an Open3D PointCloud object into a ROS PointCloud2 message.
+
+    Args:
+        cloud (open3d.geometry.PointCloud): _description_
+        h (_type_, optional): _description_. Defaults to None.
+        w (_type_, optional): _description_. Defaults to None.
+        merge_rgb (bool, optional): _description_. Defaults to True.
+
+    Returns:
+        _type_: _description_
+    """
     xyz = np.asarray(cloud.points)
     rgb = np.asarray(cloud.colors)
     if h is not None and w is not None and h * w == xyz.shape[1]:
@@ -105,6 +116,7 @@ def pointcloud_open3d_to_ros(cloud, h = None, w = None, merge_rgb = True):
     data['b'] = rgb[..., 2]
     if merge_rgb:
         data = ros_numpy.point_cloud2.merge_rgb_fields(data)
+    print(data)
     
     return ros_numpy.msgify(PointCloud2, data)
 
@@ -127,7 +139,7 @@ if __name__ == "__main__":
                                       ) 
     try:
         while not rospy.is_shutdown():
-            msg = pointcloud_open3d_to_ros(cloud, h = h, w = w)
+            msg = pointcloud_open3d_to_ros(cloud) #, h = h, w = w)
             msg.header.frame_id = 'xtion_rgb_optical_frame'
             msg.header.stamp = rospy.Time.now()
             pub.publish(msg)
