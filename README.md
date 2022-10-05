@@ -6,6 +6,8 @@ Currently supported conversions:
 - Image to OpenCV image
 - CompressedImage to OpenCV image (for `compressed` topics)
 - CompressedImage to NumPy array (for `compressedDepth` topics)
+- PointCloud2 to NumPy arrays and NumPy arrays to Open3D PointCloud
+- Open3D PointCloud to NumPy arrays and NumPy arrays to PointCloud2.
 
 # Requirements
 
@@ -22,7 +24,7 @@ Import in your script using `from vision_utils import decoder`.
 
 ## cloud_conversions.py
 
-TODO
+Import in your script using `from vision_utils import cloud_conversion`.
 
 # TODO
 
