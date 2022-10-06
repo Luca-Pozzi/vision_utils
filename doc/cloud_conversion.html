@@ -82,7 +82,7 @@ def pointcloud_ros_to_numpy(msg):
         msg (sensor_msgs.PointCloud2): A ROS PointCloud2 message.
 
     Returns:
-        tuple: A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), a second `np.ndarray` (RGB values), and a tuple (`(int, int)` shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
+        A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), a second `np.ndarray` (RGB values), and a tuple (`(int, int)` shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
     &#34;&#34;&#34;
     pc = ros_numpy.numpify(msg)
     shape = pc.shape + (3, )    # add a dimension to store XYZ and RGB info
@@ -151,7 +151,7 @@ def pointcloud_open3d_to_numpy(cloud, shape):
         ValueError: If the height and width value given with `shape` do not match the number of points in the cloud.
 
     Returns:
-        tuple: A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), and a second `nd.array` (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.
+        A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), and a second `nd.array` (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.
     &#34;&#34;&#34;
     # Extract the cartesian coordinates of the points in the cloud object
     xyz = np.asarray(cloud.points)
@@ -395,10 +395,7 @@ def _format_ndarray_for_o3d(arr):
 <dd>If the height and width value given with <code>shape</code> do not match the number of points in the cloud.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>tuple</code></dt>
-<dd>A tuple containing a first <code>np.ndarray</code> (XYZ coordinates of the points in the cloud), and a second <code>nd.array</code> (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.</dd>
-</dl></div>
+<p>A tuple containing a first <code>np.ndarray</code> (XYZ coordinates of the points in the cloud), and a second <code>nd.array</code> (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -414,7 +411,7 @@ def _format_ndarray_for_o3d(arr):
         ValueError: If the height and width value given with `shape` do not match the number of points in the cloud.
 
     Returns:
-        tuple: A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), and a second `nd.array` (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.
+        A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), and a second `nd.array` (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.
     &#34;&#34;&#34;
     # Extract the cartesian coordinates of the points in the cloud object
     xyz = np.asarray(cloud.points)
@@ -490,10 +487,7 @@ From: <a href="https://answers.ros.org/question/321829/color-problems-extracting
 <dd>A ROS PointCloud2 message.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<dl>
-<dt><code>tuple</code></dt>
-<dd>A tuple containing a first <code>np.ndarray</code> (XYZ coordinates of the points in the cloud), a second <code>np.ndarray</code> (RGB values), and a tuple (<code>(int, int)</code> shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information.</dd>
-</dl></div>
+<p>A tuple containing a first <code>np.ndarray</code> (XYZ coordinates of the points in the cloud), a second <code>np.ndarray</code> (RGB values), and a tuple (<code>(int, int)</code> shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -506,7 +500,7 @@ From: <a href="https://answers.ros.org/question/321829/color-problems-extracting
         msg (sensor_msgs.PointCloud2): A ROS PointCloud2 message.
 
     Returns:
-        tuple: A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), a second `np.ndarray` (RGB values), and a tuple (`(int, int)` shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
+        A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), a second `np.ndarray` (RGB values), and a tuple (`(int, int)` shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
     &#34;&#34;&#34;
     pc = ros_numpy.numpify(msg)
     shape = pc.shape + (3, )    # add a dimension to store XYZ and RGB info
