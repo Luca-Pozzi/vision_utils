@@ -1,11 +1,6 @@
-#!/home/luca/tiago_public_ws/src/vision_utils/pcd_venv/bin/python3
-
 """ROS/Open3D pointcloud converter
 
-This script implements a ROS publisher/subscriber node that acquires a ROS PointCloud2 message, converts it into an Open3D PointCloud object, and displays it. The node then converts back the Open3D PointCloud object into a ROS PointCloud2 message and broadcasts the message at 1Hz.
-The above behavior is intended as a demo of the conversion tools implemented in this script.
-
-This file can also be imported as a module and contains the following functions:
+This script can be imported as a module and contains the following functions:
 
     * pointcloud_ros_to_open3d
         * pointcloud_ros_to_numpy
@@ -18,7 +13,6 @@ This file can also be imported as a module and contains the following functions:
 import numpy as np
 import open3d as o3d
 
-import rospy
 import ros_numpy
 from sensor_msgs.msg import PointCloud2
 
@@ -168,7 +162,7 @@ def pointcloud_numpy_to_ros(xyz, rgb = None, merge_rgb = True):
         rgb = np.zeros_like(xyz, uint8)
     if not xyz.shape == rgb.shape:
         raise ValueError('The shapes of the `xyz` ' + str(xyz.shape) + ' and `rgb` ' + str(rgb.shape) + ' arguments do not match.')
-    data = np.zeros(shape,             # 1D or 2D 
+    data = np.zeros(xyz.shape[:-1],             # 1D or 2D 
                     dtype = dtypes
                     )
     # Fill in the fields with the point coordinates
@@ -216,31 +210,3 @@ def _format_ndarray_for_o3d(arr):
     arr = np.reshape(arr, newshape = (-1, 3))
 
     return arr
-
-
-if __name__ == "__main__":
-    rospy.init_node('cloud_converter_test')
-    
-    rate = rospy.Rate(1)   #[Hz]
-    pub = rospy.Publisher('/open3d_to_ros/points', PointCloud2, queue_size = 1)
-    
-    msg = rospy.wait_for_message('/xtion/depth_registered/points', PointCloud2)
-    cloud, shape = pointcloud_ros_to_open3d(msg)
-    print(shape)
-    # Display the pointcloud to see if the conversion is correct
-    o3d.visualization.draw_geometries([cloud], 
-                                      lookat = [0, 0, 0],
-                                      up = [0, -1, 0],
-                                      front = [0, 0, -1],
-                                      zoom = 0.3
-                                      ) 
-    
-    try:
-        while not rospy.is_shutdown():
-            msg = pointcloud_open3d_to_ros(cloud, shape = shape)
-            msg.header.frame_id = 'xtion_rgb_optical_frame'
-            msg.header.stamp = rospy.Time.now()
-            pub.publish(msg)    # check it in Rviz
-            rate.sleep()
-    except KeyboardInterrupt:
-        rospy.loginfo('Shutting down the node.')
