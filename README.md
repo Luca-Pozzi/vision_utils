@@ -15,8 +15,17 @@ Listed in the `requirements.txt` file. Use `pip install requirements.txt` to (ho
 
 - OpenCV
 - Open3d (required only to work with point clouds)
+- The `ros_numpy` package
 
-# Utilization
+# Use
+
+## Demo
+
+After having sourced the environment and connected to the robot (or to its simulation), run the node implementing a demo usage of the `cloud_conversion` submodule with
+
+'''
+rosrun vision_utils cloud_converter.py
+'''
 
 ## decoder.py
 
@@ -28,9 +37,12 @@ Import in your script using `from vision_utils import cloud_conversion`.
 
 # TODO
 
-- [x] Test `pointcloud_open3d_to_ros`
-  - [x] Make `cloud_conversion.py` a module and move it to the `src` folder
-- [ ] Create a `image_decoder.py` in `script` to demonstrate a possible usage of the `decoder` module
-- [ ] Consider converting any ROS message into a NumPy ndarray (which can be handled by OpenCV anyway)
-- [ ] Change `decoder.py` documentation to Google-style docstrings
-  - [ ] Add package documentation with `pdoc3`
+- `decoder.py`
+  - [ ] Consider renaming to `image_conversion.py` (though it would cause compatibility issues)
+  - [ ] Consider switching to `ros_numpy` to remove the `cv2` dependency and output a `numpy.ndarray` in any case
+- `scripts`
+  - [ ] Create a `image_converter.py` in `script` to demonstrate a possible usage of the `decoder` module
+  - [ ] In `cloud_converter.py`, make the topic to subscribe a command-line argument
+- `docs`
+  - [x] Change `decoder.py` documentation to Google-style docstrings
+  - [x] Add package documentation with `pdoc3`

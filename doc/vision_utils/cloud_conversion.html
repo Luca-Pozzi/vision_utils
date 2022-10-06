@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>vision_utils.cloud_conversion API documentation</title>
+<meta name="description" content="ROS/Open3D pointcloud converter …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>vision_utils.cloud_conversion</code></h1>
+</header>
+<section id="section-intro">
+<p>ROS/Open3D pointcloud converter</p>
+<p>This script can be imported as a module and contains the following public methods:</p>
+<ul>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_ros_to_open3d" href="#vision_utils.cloud_conversion.pointcloud_ros_to_open3d">pointcloud_ros_to_open3d()</a></code><ul>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_ros_to_numpy" href="#vision_utils.cloud_conversion.pointcloud_ros_to_numpy">pointcloud_ros_to_numpy()</a></code></li>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_numpy_to_open3d" href="#vision_utils.cloud_conversion.pointcloud_numpy_to_open3d">pointcloud_numpy_to_open3d()</a></code></li>
+</ul>
+</li>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_open3d_to_ros" href="#vision_utils.cloud_conversion.pointcloud_open3d_to_ros">pointcloud_open3d_to_ros()</a></code><ul>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_open3d_to_numpy" href="#vision_utils.cloud_conversion.pointcloud_open3d_to_numpy">pointcloud_open3d_to_numpy()</a></code></li>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_numpy_to_open3d" href="#vision_utils.cloud_conversion.pointcloud_numpy_to_open3d">pointcloud_numpy_to_open3d()</a></code></li>
+</ul>
+</li>
+</ul>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;ROS/Open3D pointcloud converter
+
+This script can be imported as a module and contains the following public methods:
+
+* `pointcloud_ros_to_open3d`
+    * `pointcloud_ros_to_numpy`
+    * `pointcloud_numpy_to_open3d`
+* `pointcloud_open3d_to_ros`
+    * `pointcloud_open3d_to_numpy`
+    * `pointcloud_numpy_to_open3d`
+&#34;&#34;&#34;
+
+import numpy as np
+import open3d as o3d
+
+import ros_numpy
+from sensor_msgs.msg import PointCloud2
+
+
+def pointcloud_ros_to_open3d(msg):
+    &#34;&#34;&#34;Convert a ROS PointCloud2 message into a Open3D PointCloud object.
+
+    Args:
+        msg (sensor_msgs.PointCloud2): A ROS PointCloud2 message.
+
+    Returns:
+        open3d.geometry.PointCloud: An Open3D PointCloud object with the same data of the input message.
+    &#34;&#34;&#34;
+    xyz, rgb, ros_cloud_shape = pointcloud_ros_to_numpy(msg)
+    pcd = pointcloud_numpy_to_open3d(xyz, rgb)
+
+    return pcd, ros_cloud_shape
+
+
+def pointcloud_ros_to_numpy(msg):
+    &#34;&#34;&#34;Convert a ROS PointCloud2 message into two np.ndarrays (one for XYZ coordinates, and one for RGB values).
+    From: https://answers.ros.org/question/321829/color-problems-extracting-rgb-from-pointcloud2/
+
+    Args:
+        msg (sensor_msgs.PointCloud2): A ROS PointCloud2 message.
+
+    Returns:
+        tuple: A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), a second `np.ndarray` (RGB values), and a tuple (`(int, int)` shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
+    &#34;&#34;&#34;
+    pc = ros_numpy.numpify(msg)
+    shape = pc.shape + (3, )    # add a dimension to store XYZ and RGB info
+    
+    xyz = np.zeros(shape) 
+    xyz[..., 0] = pc[&#39;x&#39;]
+    xyz[..., 1] = pc[&#39;y&#39;]
+    xyz[..., 2] = pc[&#39;z&#39;]
+
+    rgb = None
+    if &#39;rgb&#39; in pc.dtype.fields:
+        # If the cloud has an RGB field, split it to obtain 3 int values from a single float value.
+        pc = ros_numpy.point_cloud2.split_rgb_field(pc)
+
+        rgb = np.zeros(shape)
+        rgb[..., 0] = pc[&#39;r&#39;]
+        rgb[..., 1] = pc[&#39;g&#39;]
+        rgb[..., 2] = pc[&#39;b&#39;]
+    
+    return xyz, rgb, shape[:-1]
+
+
+def pointcloud_numpy_to_open3d(xyz, rgb = None):
+    &#34;&#34;&#34;Convert two `np.ndarrays` (one with cartesian data and one with RGB values) into an Open3D pointcloud object.
+
+    Args:
+        xyz (np.ndarray): An array of shape `(..., 3)` with the cartesian coordinates of the points in the cloud. The order of the point values is assumed to match the one in `rgb`.
+        rgb (np.ndarray, optional): An array of shape `(..., 3)` with the RGB values of the points in the cloud. The order of the point values is assumed to match the one in `xyz`.
+
+    Returns:
+        open3d.geometry.PointCloud: An Open3D PointCloud object with the same geometry data as `xyz` and, if any, the same color information as `rgb`.
+    &#34;&#34;&#34;
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(_format_ndarray_for_o3d(xyz))
+    if rgb is not None:
+        rgb = (rgb - rgb.min()) / (rgb.max() - rgb.min()) # normalize RGB values in the [0 1] range
+        pcd.colors = o3d.utility.Vector3dVector(_format_ndarray_for_o3d(rgb))
+
+    return pcd
+
+
+def pointcloud_open3d_to_ros(cloud, shape = None, merge_rgb = True):
+    &#34;&#34;&#34;Convert an Open3D PointCloud object into a ROS PointCloud2 message.
+
+    Args:
+        cloud (open3d.geometry.PointCloud): An Open3D PointCloud object.
+        shape ((int, int), optional): A tuple with two elements, specifiying the 2D structure of the point cloud. Defaults to None.
+        merge_rgb (bool, optional): If True, the `np.uint8` R, G and B values are merged into a single `np.float32` value. Defaults to True.
+
+    Returns:
+        sensor_msgs.PointCloud2: A ROS PointCloud2 message, with the same information of the input cloud.
+    &#34;&#34;&#34;
+    xyz, rgb = pointcloud_open3d_to_numpy(cloud, shape)
+    msg = pointcloud_numpy_to_ros(xyz, rgb, merge_rgb = merge_rgb)
+    return msg
+
+
+def pointcloud_open3d_to_numpy(cloud, shape):
+    &#34;&#34;&#34;Convert an Open3D PointCloud object into two `np.ndarrays` (one with cartesian data and one with RGB values) into an Open3D pointcloud object.
+
+    Args:
+        cloud (open3d.geometry.PointCloud): An Open3D PointCloud object.
+        shape (tuple, optional): A tuple with two `int` elements, specifiying the 2D structure of the point cloud. Defaults to None.
+
+    Raises:
+        ValueError: If the height and width value given with `shape` do not match the number of points in the cloud.
+
+    Returns:
+        tuple: A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), and a second `nd.array` (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.
+    &#34;&#34;&#34;
+    # Extract the cartesian coordinates of the points in the cloud object
+    xyz = np.asarray(cloud.points)
+    # Extract the RGB info (if any) of the points in the cloud object
+    if cloud.colors: 
+        # If the input cloud has color information, format it to be saved in the ROS cloud
+        rgb = np.asarray(cloud.colors)
+        rgb = (rgb * 255.0).astype(np.uint32)
+    else:
+        # If the input cloud does not have color info, paint it black.
+        # NOTE: this is a workaround to keep the same structure for the `data` array below (i.e. to always have `r`, `g`, and `b` fields).
+        rgb = np.zeros((xyz.shape[0], 3), dtype = np.uint32)
+    # If a `shape` argument is given, check for the validity and reshape data.
+    if shape is not None:
+        h, w = shape    # unpack the shape tuple
+        if not h * w == xyz.shape[0]:
+            raise ValueError(&#39;Specified shape argument &#39; + str(shape) + &#39; would give &#39; + str(h * w) + &#39;points. This value does not match the number of points in the cloud &#39; + str(xyz.shape[0]))
+        xyz = np.reshape(xyz, newshape = shape + (3,))
+        rgb = np.reshape(rgb, newshape = shape + (3,))
+    else:
+        shape = xyz.shape[0]
+    
+    return xyz, rgb
+
+
+def pointcloud_numpy_to_ros(xyz, rgb = None, merge_rgb = True):
+    &#34;&#34;&#34;Convert an Open3D PointCloud object into a ROS PointCloud2 message.
+
+    Args:
+        xyz (np.ndarray): An array of shape (..., 3) with the cartesian coordinates of the points in the cloud. The order of the point values is assumed to match the one in `rgb`.
+        rgb (np.ndarray, optional): An array of shape (..., 3) with the RGB values of the points in the cloud. The order of the point values is assumed to match the one in `xyz`.
+        merge_rgb (bool, optional): If `True`, the `r`, `g` and `b` (type `np.uint8`) fields are merged into a single `rgb` (type `np.float32`) fields. Defaults to `True`.
+
+    Returns:
+        sensor_msgs.PointCloud2: A ROS message with the same data of the input Open3D cloud.
+    &#34;&#34;&#34;
+    # Create a structured array (according with the `merge_rgb` argument)
+    dtypes = [(&#39;x&#39;,    np.float32),
+              (&#39;y&#39;,    np.float32),
+              (&#39;z&#39;,    np.float32),
+            ]
+    dtype_rgb = [(&#39;rgb&#39;, np.float32)] if merge_rgb else [(&#39;r&#39;,    np.uint8),
+                                                         (&#39;g&#39;,    np.uint8),
+                                                         (&#39;b&#39;,    np.uint8)
+                                                        ]
+    dtypes.extend(dtype_rgb)
+    
+    if rgb is None:
+        # If no color is given in input (i.e. if this function is used alone and not called from `pointcloud_open3d_to_ros`), create an array of proper shape and fill it with zero (i.e. the output cloud will be black).
+        rgb = np.zeros_like(xyz, uint8)
+    if not xyz.shape == rgb.shape:
+        raise ValueError(&#39;The shapes of the `xyz` &#39; + str(xyz.shape) + &#39; and `rgb` &#39; + str(rgb.shape) + &#39; arguments do not match.&#39;)
+    data = np.zeros(xyz.shape[:-1],             # 1D or 2D 
+                    dtype = dtypes
+                    )
+    # Fill in the fields with the point coordinates
+    data[&#39;x&#39;] = xyz[..., 0]
+    data[&#39;y&#39;] = xyz[..., 1]
+    data[&#39;z&#39;] = xyz[..., 2]
+    # Fill in the fields with the RGB information.
+    r = rgb[..., 0]
+    g = rgb[..., 1]
+    b = rgb[..., 2]
+    if merge_rgb:
+        &#39;&#39;&#39;
+        NOTE: the following two lines are taken from `ros_numpy.point_cloud2.merge_rgb_fields`
+        &#39;&#39;&#39;
+        rgb = np.array((r &lt;&lt; 16) | (g &lt;&lt; 8) | (b &lt;&lt; 0), dtype = np.uint32)
+        rgb.dtype = np.float32
+        data[&#39;rgb&#39;] = rgb
+    else:
+        data[&#39;r&#39;] = r.astype(np.uint8) 
+        data[&#39;g&#39;] = g.astype(np.uint8)
+        data[&#39;b&#39;] = b.astype(np.uint8)
+    
+    return ros_numpy.msgify(PointCloud2, data)
+
+
+def _format_ndarray_for_o3d(arr):
+    &#34;&#34;&#34;Check if the input array is structured (i.e. points are organized in a 2D matrix) or not. Structured arrays are left untouched, structured ones are flattened in order to match the (n, 3) shape required from Open3D PointCloud fields.
+
+    Args:
+        arr (np.ndarray): The array to check and, possibly, flatten.
+
+    Raises:
+        ValueError: The shape of the input array is not (n, 3) or (h, w, 3).
+
+    Returns:
+        np.ndarray: The input array, reshaped to match (n, 3) shape.
+    &#34;&#34;&#34;
+    # Remove any axes of lenght 1 (i.e. dummy dimensions).
+    arr = np.squeeze(arr)
+    # Check if cloud shape is suitable for the intended use
+    if (not arr.shape[-1] == 3) or (not len(arr.shape) &lt;= 3):
+        raise ValueError(&#39;The input array is expected to be a numpy array with shape (n, 3) or (h, w, 3). After squeezing, the input array has shape &#39; + str(arr.shape))
+    
+    # Reshape the array as (n, 3). If the input array already has shape (n, 3), it remains unchanged.
+    arr = np.reshape(arr, newshape = (-1, 3))
+
+    return arr</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="vision_utils.cloud_conversion.pointcloud_numpy_to_open3d"><code class="name flex">
+<span>def <span class="ident">pointcloud_numpy_to_open3d</span></span>(<span>xyz, rgb=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert two <code>np.ndarrays</code> (one with cartesian data and one with RGB values) into an Open3D pointcloud object.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>xyz</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>An array of shape <code>(&hellip;, 3)</code> with the cartesian coordinates of the points in the cloud. The order of the point values is assumed to match the one in <code>rgb</code>.</dd>
+<dt><strong><code>rgb</code></strong> :&ensp;<code>np.ndarray</code>, optional</dt>
+<dd>An array of shape <code>(&hellip;, 3)</code> with the RGB values of the points in the cloud. The order of the point values is assumed to match the one in <code>xyz</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>open3d.geometry.PointCloud</code></dt>
+<dd>An Open3D PointCloud object with the same geometry data as <code>xyz</code> and, if any, the same color information as <code>rgb</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pointcloud_numpy_to_open3d(xyz, rgb = None):
+    &#34;&#34;&#34;Convert two `np.ndarrays` (one with cartesian data and one with RGB values) into an Open3D pointcloud object.
+
+    Args:
+        xyz (np.ndarray): An array of shape `(..., 3)` with the cartesian coordinates of the points in the cloud. The order of the point values is assumed to match the one in `rgb`.
+        rgb (np.ndarray, optional): An array of shape `(..., 3)` with the RGB values of the points in the cloud. The order of the point values is assumed to match the one in `xyz`.
+
+    Returns:
+        open3d.geometry.PointCloud: An Open3D PointCloud object with the same geometry data as `xyz` and, if any, the same color information as `rgb`.
+    &#34;&#34;&#34;
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(_format_ndarray_for_o3d(xyz))
+    if rgb is not None:
+        rgb = (rgb - rgb.min()) / (rgb.max() - rgb.min()) # normalize RGB values in the [0 1] range
+        pcd.colors = o3d.utility.Vector3dVector(_format_ndarray_for_o3d(rgb))
+
+    return pcd</code></pre>
+</details>
+</dd>
+<dt id="vision_utils.cloud_conversion.pointcloud_numpy_to_ros"><code class="name flex">
+<span>def <span class="ident">pointcloud_numpy_to_ros</span></span>(<span>xyz, rgb=None, merge_rgb=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert an Open3D PointCloud object into a ROS PointCloud2 message.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>xyz</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>An array of shape (&hellip;, 3) with the cartesian coordinates of the points in the cloud. The order of the point values is assumed to match the one in <code>rgb</code>.</dd>
+<dt><strong><code>rgb</code></strong> :&ensp;<code>np.ndarray</code>, optional</dt>
+<dd>An array of shape (&hellip;, 3) with the RGB values of the points in the cloud. The order of the point values is assumed to match the one in <code>xyz</code>.</dd>
+<dt><strong><code>merge_rgb</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>If <code>True</code>, the <code>r</code>, <code>g</code> and <code>b</code> (type <code>np.uint8</code>) fields are merged into a single <code>rgb</code> (type <code>np.float32</code>) fields. Defaults to <code>True</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>sensor_msgs.PointCloud2</code></dt>
+<dd>A ROS message with the same data of the input Open3D cloud.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pointcloud_numpy_to_ros(xyz, rgb = None, merge_rgb = True):
+    &#34;&#34;&#34;Convert an Open3D PointCloud object into a ROS PointCloud2 message.
+
+    Args:
+        xyz (np.ndarray): An array of shape (..., 3) with the cartesian coordinates of the points in the cloud. The order of the point values is assumed to match the one in `rgb`.
+        rgb (np.ndarray, optional): An array of shape (..., 3) with the RGB values of the points in the cloud. The order of the point values is assumed to match the one in `xyz`.
+        merge_rgb (bool, optional): If `True`, the `r`, `g` and `b` (type `np.uint8`) fields are merged into a single `rgb` (type `np.float32`) fields. Defaults to `True`.
+
+    Returns:
+        sensor_msgs.PointCloud2: A ROS message with the same data of the input Open3D cloud.
+    &#34;&#34;&#34;
+    # Create a structured array (according with the `merge_rgb` argument)
+    dtypes = [(&#39;x&#39;,    np.float32),
+              (&#39;y&#39;,    np.float32),
+              (&#39;z&#39;,    np.float32),
+            ]
+    dtype_rgb = [(&#39;rgb&#39;, np.float32)] if merge_rgb else [(&#39;r&#39;,    np.uint8),
+                                                         (&#39;g&#39;,    np.uint8),
+                                                         (&#39;b&#39;,    np.uint8)
+                                                        ]
+    dtypes.extend(dtype_rgb)
+    
+    if rgb is None:
+        # If no color is given in input (i.e. if this function is used alone and not called from `pointcloud_open3d_to_ros`), create an array of proper shape and fill it with zero (i.e. the output cloud will be black).
+        rgb = np.zeros_like(xyz, uint8)
+    if not xyz.shape == rgb.shape:
+        raise ValueError(&#39;The shapes of the `xyz` &#39; + str(xyz.shape) + &#39; and `rgb` &#39; + str(rgb.shape) + &#39; arguments do not match.&#39;)
+    data = np.zeros(xyz.shape[:-1],             # 1D or 2D 
+                    dtype = dtypes
+                    )
+    # Fill in the fields with the point coordinates
+    data[&#39;x&#39;] = xyz[..., 0]
+    data[&#39;y&#39;] = xyz[..., 1]
+    data[&#39;z&#39;] = xyz[..., 2]
+    # Fill in the fields with the RGB information.
+    r = rgb[..., 0]
+    g = rgb[..., 1]
+    b = rgb[..., 2]
+    if merge_rgb:
+        &#39;&#39;&#39;
+        NOTE: the following two lines are taken from `ros_numpy.point_cloud2.merge_rgb_fields`
+        &#39;&#39;&#39;
+        rgb = np.array((r &lt;&lt; 16) | (g &lt;&lt; 8) | (b &lt;&lt; 0), dtype = np.uint32)
+        rgb.dtype = np.float32
+        data[&#39;rgb&#39;] = rgb
+    else:
+        data[&#39;r&#39;] = r.astype(np.uint8) 
+        data[&#39;g&#39;] = g.astype(np.uint8)
+        data[&#39;b&#39;] = b.astype(np.uint8)
+    
+    return ros_numpy.msgify(PointCloud2, data)</code></pre>
+</details>
+</dd>
+<dt id="vision_utils.cloud_conversion.pointcloud_open3d_to_numpy"><code class="name flex">
+<span>def <span class="ident">pointcloud_open3d_to_numpy</span></span>(<span>cloud, shape)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert an Open3D PointCloud object into two <code>np.ndarrays</code> (one with cartesian data and one with RGB values) into an Open3D pointcloud object.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>cloud</code></strong> :&ensp;<code>open3d.geometry.PointCloud</code></dt>
+<dd>An Open3D PointCloud object.</dd>
+<dt><strong><code>shape</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>A tuple with two <code>int</code> elements, specifiying the 2D structure of the point cloud. Defaults to None.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>ValueError</code></dt>
+<dd>If the height and width value given with <code>shape</code> do not match the number of points in the cloud.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>A tuple containing a first <code>np.ndarray</code> (XYZ coordinates of the points in the cloud), and a second <code>nd.array</code> (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pointcloud_open3d_to_numpy(cloud, shape):
+    &#34;&#34;&#34;Convert an Open3D PointCloud object into two `np.ndarrays` (one with cartesian data and one with RGB values) into an Open3D pointcloud object.
+
+    Args:
+        cloud (open3d.geometry.PointCloud): An Open3D PointCloud object.
+        shape (tuple, optional): A tuple with two `int` elements, specifiying the 2D structure of the point cloud. Defaults to None.
+
+    Raises:
+        ValueError: If the height and width value given with `shape` do not match the number of points in the cloud.
+
+    Returns:
+        tuple: A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), and a second `nd.array` (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.
+    &#34;&#34;&#34;
+    # Extract the cartesian coordinates of the points in the cloud object
+    xyz = np.asarray(cloud.points)
+    # Extract the RGB info (if any) of the points in the cloud object
+    if cloud.colors: 
+        # If the input cloud has color information, format it to be saved in the ROS cloud
+        rgb = np.asarray(cloud.colors)
+        rgb = (rgb * 255.0).astype(np.uint32)
+    else:
+        # If the input cloud does not have color info, paint it black.
+        # NOTE: this is a workaround to keep the same structure for the `data` array below (i.e. to always have `r`, `g`, and `b` fields).
+        rgb = np.zeros((xyz.shape[0], 3), dtype = np.uint32)
+    # If a `shape` argument is given, check for the validity and reshape data.
+    if shape is not None:
+        h, w = shape    # unpack the shape tuple
+        if not h * w == xyz.shape[0]:
+            raise ValueError(&#39;Specified shape argument &#39; + str(shape) + &#39; would give &#39; + str(h * w) + &#39;points. This value does not match the number of points in the cloud &#39; + str(xyz.shape[0]))
+        xyz = np.reshape(xyz, newshape = shape + (3,))
+        rgb = np.reshape(rgb, newshape = shape + (3,))
+    else:
+        shape = xyz.shape[0]
+    
+    return xyz, rgb</code></pre>
+</details>
+</dd>
+<dt id="vision_utils.cloud_conversion.pointcloud_open3d_to_ros"><code class="name flex">
+<span>def <span class="ident">pointcloud_open3d_to_ros</span></span>(<span>cloud, shape=None, merge_rgb=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert an Open3D PointCloud object into a ROS PointCloud2 message.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>cloud</code></strong> :&ensp;<code>open3d.geometry.PointCloud</code></dt>
+<dd>An Open3D PointCloud object.</dd>
+<dt>shape ((int, int), optional): A tuple with two elements, specifiying the 2D structure of the point cloud. Defaults to None.</dt>
+<dt><strong><code>merge_rgb</code></strong> :&ensp;<code>bool</code>, optional</dt>
+<dd>If True, the <code>np.uint8</code> R, G and B values are merged into a single <code>np.float32</code> value. Defaults to True.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>sensor_msgs.PointCloud2</code></dt>
+<dd>A ROS PointCloud2 message, with the same information of the input cloud.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pointcloud_open3d_to_ros(cloud, shape = None, merge_rgb = True):
+    &#34;&#34;&#34;Convert an Open3D PointCloud object into a ROS PointCloud2 message.
+
+    Args:
+        cloud (open3d.geometry.PointCloud): An Open3D PointCloud object.
+        shape ((int, int), optional): A tuple with two elements, specifiying the 2D structure of the point cloud. Defaults to None.
+        merge_rgb (bool, optional): If True, the `np.uint8` R, G and B values are merged into a single `np.float32` value. Defaults to True.
+
+    Returns:
+        sensor_msgs.PointCloud2: A ROS PointCloud2 message, with the same information of the input cloud.
+    &#34;&#34;&#34;
+    xyz, rgb = pointcloud_open3d_to_numpy(cloud, shape)
+    msg = pointcloud_numpy_to_ros(xyz, rgb, merge_rgb = merge_rgb)
+    return msg</code></pre>
+</details>
+</dd>
+<dt id="vision_utils.cloud_conversion.pointcloud_ros_to_numpy"><code class="name flex">
+<span>def <span class="ident">pointcloud_ros_to_numpy</span></span>(<span>msg)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a ROS PointCloud2 message into two np.ndarrays (one for XYZ coordinates, and one for RGB values).
+From: <a href="https://answers.ros.org/question/321829/color-problems-extracting-rgb-from-pointcloud2/">https://answers.ros.org/question/321829/color-problems-extracting-rgb-from-pointcloud2/</a></p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>msg</code></strong> :&ensp;<code>sensor_msgs.PointCloud2</code></dt>
+<dd>A ROS PointCloud2 message.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>tuple</code></dt>
+<dd>A tuple containing a first <code>np.ndarray</code> (XYZ coordinates of the points in the cloud), a second <code>np.ndarray</code> (RGB values), and a tuple (<code>(int, int)</code> shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pointcloud_ros_to_numpy(msg):
+    &#34;&#34;&#34;Convert a ROS PointCloud2 message into two np.ndarrays (one for XYZ coordinates, and one for RGB values).
+    From: https://answers.ros.org/question/321829/color-problems-extracting-rgb-from-pointcloud2/
+
+    Args:
+        msg (sensor_msgs.PointCloud2): A ROS PointCloud2 message.
+
+    Returns:
+        tuple: A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), a second `np.ndarray` (RGB values), and a tuple (`(int, int)` shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
+    &#34;&#34;&#34;
+    pc = ros_numpy.numpify(msg)
+    shape = pc.shape + (3, )    # add a dimension to store XYZ and RGB info
+    
+    xyz = np.zeros(shape) 
+    xyz[..., 0] = pc[&#39;x&#39;]
+    xyz[..., 1] = pc[&#39;y&#39;]
+    xyz[..., 2] = pc[&#39;z&#39;]
+
+    rgb = None
+    if &#39;rgb&#39; in pc.dtype.fields:
+        # If the cloud has an RGB field, split it to obtain 3 int values from a single float value.
+        pc = ros_numpy.point_cloud2.split_rgb_field(pc)
+
+        rgb = np.zeros(shape)
+        rgb[..., 0] = pc[&#39;r&#39;]
+        rgb[..., 1] = pc[&#39;g&#39;]
+        rgb[..., 2] = pc[&#39;b&#39;]
+    
+    return xyz, rgb, shape[:-1]</code></pre>
+</details>
+</dd>
+<dt id="vision_utils.cloud_conversion.pointcloud_ros_to_open3d"><code class="name flex">
+<span>def <span class="ident">pointcloud_ros_to_open3d</span></span>(<span>msg)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert a ROS PointCloud2 message into a Open3D PointCloud object.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>msg</code></strong> :&ensp;<code>sensor_msgs.PointCloud2</code></dt>
+<dd>A ROS PointCloud2 message.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>open3d.geometry.PointCloud</code></dt>
+<dd>An Open3D PointCloud object with the same data of the input message.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pointcloud_ros_to_open3d(msg):
+    &#34;&#34;&#34;Convert a ROS PointCloud2 message into a Open3D PointCloud object.
+
+    Args:
+        msg (sensor_msgs.PointCloud2): A ROS PointCloud2 message.
+
+    Returns:
+        open3d.geometry.PointCloud: An Open3D PointCloud object with the same data of the input message.
+    &#34;&#34;&#34;
+    xyz, rgb, ros_cloud_shape = pointcloud_ros_to_numpy(msg)
+    pcd = pointcloud_numpy_to_open3d(xyz, rgb)
+
+    return pcd, ros_cloud_shape</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="vision_utils" href="index.html">vision_utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_numpy_to_open3d" href="#vision_utils.cloud_conversion.pointcloud_numpy_to_open3d">pointcloud_numpy_to_open3d</a></code></li>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_numpy_to_ros" href="#vision_utils.cloud_conversion.pointcloud_numpy_to_ros">pointcloud_numpy_to_ros</a></code></li>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_open3d_to_numpy" href="#vision_utils.cloud_conversion.pointcloud_open3d_to_numpy">pointcloud_open3d_to_numpy</a></code></li>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_open3d_to_ros" href="#vision_utils.cloud_conversion.pointcloud_open3d_to_ros">pointcloud_open3d_to_ros</a></code></li>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_ros_to_numpy" href="#vision_utils.cloud_conversion.pointcloud_ros_to_numpy">pointcloud_ros_to_numpy</a></code></li>
+<li><code><a title="vision_utils.cloud_conversion.pointcloud_ros_to_open3d" href="#vision_utils.cloud_conversion.pointcloud_ros_to_open3d">pointcloud_ros_to_open3d</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

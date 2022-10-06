@@ -1,3 +1,15 @@
+"""ROS to OpenCV image converter
+
+This script can be imported as a module and contains the following public methods:
+
+* `check_for_type`
+* `decode_CompressedImage_depth`
+* `decode_Image_depth`
+* `decode_Image_RGB`
+* `decode_CompressedImage_RGB`
+
+"""
+
 import cv2
 import struct
 import numpy as np

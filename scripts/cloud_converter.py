@@ -20,7 +20,7 @@ if __name__ == "__main__":
     
     msg = rospy.wait_for_message('/xtion/depth_registered/points', PointCloud2)
     cloud, shape = pointcloud_ros_to_open3d(msg)
-    print(shape)
+    
     # Display the pointcloud to see if the conversion is correct
     o3d.visualization.draw_geometries([cloud], 
                                       lookat = [0, 0, 0],

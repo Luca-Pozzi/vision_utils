@@ -1,13 +1,13 @@
 """ROS/Open3D pointcloud converter
 
-This script can be imported as a module and contains the following functions:
+This script can be imported as a module and contains the following public methods:
 
-    * pointcloud_ros_to_open3d
-        * pointcloud_ros_to_numpy
-        * pointcloud_numpy_to_open3d
-    * pointcloud_open3d_to_ros
-        * pointcloud_open3d_to_numpy
-        * pointcloud_numpy_to_open3d
+* `pointcloud_ros_to_open3d`
+    * `pointcloud_ros_to_numpy`
+    * `pointcloud_numpy_to_open3d`
+* `pointcloud_open3d_to_ros`
+    * `pointcloud_open3d_to_numpy`
+    * `pointcloud_numpy_to_open3d`
 """
 
 import numpy as np
@@ -21,7 +21,7 @@ def pointcloud_ros_to_open3d(msg):
     """Convert a ROS PointCloud2 message into a Open3D PointCloud object.
 
     Args:
-        msg (sensor_msgs/PointCloud2): A ROS PointCloud2 message.
+        msg (sensor_msgs.PointCloud2): A ROS PointCloud2 message.
 
     Returns:
         open3d.geometry.PointCloud: An Open3D PointCloud object with the same data of the input message.
@@ -37,10 +37,10 @@ def pointcloud_ros_to_numpy(msg):
     From: https://answers.ros.org/question/321829/color-problems-extracting-rgb-from-pointcloud2/
 
     Args:
-        msg (sensor_msgs/PointCloud2): A ROS PointCloud2 message.
+        msg (sensor_msgs.PointCloud2): A ROS PointCloud2 message.
 
     Returns:
-        tuple(np.ndarray, np.ndarray, tuple): A tuple containing a first np.ndarray (XYZ coordinates of the points in the cloud), a second nd.array (RGB values), and a tuple (shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
+        A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), a second `np.ndarray` (RGB values), and a tuple (`(int, int)` shape of the input cloud). The second item (RGB values) can be None if the input PointCloud2 has no color information. 
     """
     pc = ros_numpy.numpify(msg)
     shape = pc.shape + (3, )    # add a dimension to store XYZ and RGB info
@@ -67,8 +67,8 @@ def pointcloud_numpy_to_open3d(xyz, rgb = None):
     """Convert two `np.ndarrays` (one with cartesian data and one with RGB values) into an Open3D pointcloud object.
 
     Args:
-        xyz (np.ndarray): An array of shape (..., 3) with the cartesian coordinates of the points in the cloud. The order of the point values is assumed to match the one in `rgb`.
-        rgb (np.ndarray, optional): An array of shape (..., 3) with the RGB values of the points in the cloud. The order of the point values is assumed to match the one in `xyz`.
+        xyz (np.ndarray): An array of shape `(..., 3)` with the cartesian coordinates of the points in the cloud. The order of the point values is assumed to match the one in `rgb`.
+        rgb (np.ndarray, optional): An array of shape `(..., 3)` with the RGB values of the points in the cloud. The order of the point values is assumed to match the one in `xyz`.
 
     Returns:
         open3d.geometry.PointCloud: An Open3D PointCloud object with the same geometry data as `xyz` and, if any, the same color information as `rgb`.
@@ -91,7 +91,7 @@ def pointcloud_open3d_to_ros(cloud, shape = None, merge_rgb = True):
         merge_rgb (bool, optional): If True, the `np.uint8` R, G and B values are merged into a single `np.float32` value. Defaults to True.
 
     Returns:
-        sensor_msgs/PointCloud2: A ROS PointCloud2 message, with the same information of the input cloud.
+        sensor_msgs.PointCloud2: A ROS PointCloud2 message, with the same information of the input cloud.
     """
     xyz, rgb = pointcloud_open3d_to_numpy(cloud, shape)
     msg = pointcloud_numpy_to_ros(xyz, rgb, merge_rgb = merge_rgb)
@@ -103,13 +103,13 @@ def pointcloud_open3d_to_numpy(cloud, shape):
 
     Args:
         cloud (open3d.geometry.PointCloud): An Open3D PointCloud object.
-        shape ((int, int), optional): A tuple with two elements, specifiying the 2D structure of the point cloud. Defaults to None.
+        shape (tuple, optional): A tuple with two `int` elements, specifiying the 2D structure of the point cloud. Defaults to None.
 
     Raises:
         ValueError: If the height and width value given with `shape` do not match the number of points in the cloud.
 
     Returns:
-        tuple(np.ndarray, np.ndarray): A tuple containing a first np.ndarray (XYZ coordinates of the points in the cloud), and a second nd.array (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.
+        A tuple containing a first `np.ndarray` (XYZ coordinates of the points in the cloud), and a second `nd.array` (RGB values). If the input cloud has no objects, the second item will be an array of zeros of proper shape.
     """
     # Extract the cartesian coordinates of the points in the cloud object
     xyz = np.asarray(cloud.points)
@@ -144,7 +144,7 @@ def pointcloud_numpy_to_ros(xyz, rgb = None, merge_rgb = True):
         merge_rgb (bool, optional): If `True`, the `r`, `g` and `b` (type `np.uint8`) fields are merged into a single `rgb` (type `np.float32`) fields. Defaults to `True`.
 
     Returns:
-        sensor_msgs/PointCloud2: A ROS message with the same data of the input Open3D cloud.
+        sensor_msgs.PointCloud2: A ROS message with the same data of the input Open3D cloud.
     """
     # Create a structured array (according with the `merge_rgb` argument)
     dtypes = [('x',    np.float32),
