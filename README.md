@@ -25,9 +25,9 @@ The [documentation](https://luca-pozzi.github.io/vision_utils/) of the `vision_u
 
 After having sourced the environment and connected to the robot (or to its simulation), run the node implementing a demo usage of the `cloud_conversion` submodule with
 
-'''
+```
 rosrun vision_utils cloud_converter.py
-'''
+```
 
 ## decoder.py
 
