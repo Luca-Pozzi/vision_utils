@@ -19,6 +19,8 @@ Listed in the `requirements.txt` file. Use `pip install requirements.txt` to (ho
 
 # Use
 
+The documentation of the `vision_utils` module is provided in the `doc` folder.
+
 ## Demo
 
 After having sourced the environment and connected to the robot (or to its simulation), run the node implementing a demo usage of the `cloud_conversion` submodule with
