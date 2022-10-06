@@ -19,7 +19,7 @@ Listed in the `requirements.txt` file. Use `pip install requirements.txt` to (ho
 
 # Use
 
-The documentation of the `vision_utils` module is provided in the `doc` folder.
+The [documentation](https://luca-pozzi.github.io/vision_utils/) of the `vision_utils` module is provided via GitHub Pages. The source files are also available in the `docs` folder.
 
 ## Demo
 
