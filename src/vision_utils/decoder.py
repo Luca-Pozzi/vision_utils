@@ -72,6 +72,7 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
     if compr_type != "compressedDepth":
         raise Exception("Compression type is not 'compressedDepth'."
                         "You probably subscribed to the wrong topic.")
+        # TODO. Check if subscribed to a compressed topic instead of compressedDepth and return appropriate error msg
 
     # Remove header from raw data
     raw_data = msg.data[header_size:]
@@ -85,7 +86,7 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
     if depth_fmt == "16UC1":    # data in mm as uint16
         # Convert data to m if requested by the user (dividing should automatically turn depth data
         # into float)
-        depth_data = depth_img_raw / 1000 if depth_in_m else depth_img_raw
+        depth_data = depth_img_raw.astype(np.float32) / 1000.0 if depth_in_m else depth_img_raw
     elif depth_fmt == "32FC1":
         raw_header = msg.data[:header_size]
         # header: int, float, float
@@ -117,7 +118,7 @@ def decode_Image_depth(msg, depth_in_m = True):
     if msg.encoding == "16UC1":
         byte_array = np.fromstring(msg.data, np.uint16)      # array of bytes
         depth_data = np.frombuffer(byte_array, dtype = np.uint16)  # numpy 2D array
-        depth_data = (depth_data / 1000) if depth_in_m else depth_data
+        depth_data = (depth_data.astype(np.float32) / 1000.0) if depth_in_m else depth_data
     elif msg.encoding == "32FC1":
         byte_array = np.fromstring(msg.data, np.float32)      # array of bytes
         depth_data = np.frombuffer(byte_array, dtype = np.float32)  # numpy 2D array
