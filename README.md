@@ -1,5 +1,8 @@
 # ROS vision_utils package
 
+> **Warning.** This branch is obsolete, users should move to the *v1.1* branch (now the default one). 
+> The present *v1.0* branch is kept just for back-compatibility and is not maintained anymore.  
+
 Provides utility functions to convert from ROS messages to Python datatypes.
 Currently supported conversions:
 
