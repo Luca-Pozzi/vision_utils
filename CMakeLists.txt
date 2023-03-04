@@ -8,11 +8,11 @@ project(vision_utils)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
   message_filters
   roscpp
   rospy
-  std_msgs
+  sensor_msgs
+  ros_numpy
 )
 
 ## System dependencies are found with CMake's conventions
