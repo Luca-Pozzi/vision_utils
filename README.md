@@ -59,6 +59,14 @@ pip3 install pdoc3
 ```
 pdoc --html --force --output-dir docs src/vision_utils
 ```
+3. Move the `.html` files one folder up (i.e. in `docs/`)
+```
+cp -r docs/vision_utils/. docs
+```
+4. Optional. Remove the `docs/vision_utils` folder
+```
+rm -r docs/vision_utils/
+```
 # TODO
 
 - `src`
