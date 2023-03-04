@@ -47,7 +47,7 @@ rosrun vision_utils cloud_converter.py
 
 # Documentation
 
-Full documentation of the package is available [here](docs/vision_utils/index.html).
+Full documentation of the package is available [here](https://tiago-we-cobot.github.io/vision_utils/).
 
 To (re-)build the package documentation (e.g. if changing the docstrings, or adding new methods/submodules): 
 0. Install [pdoc3](https://pdoc3.github.io/pdoc/) with 
