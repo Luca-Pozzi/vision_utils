@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>vision_utils.decoder API documentation</title>
+<title>vision_utils.image_conversion API documentation</title>
 <meta name="description" content="ROS to OpenCV image converter …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,17 +19,17 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>vision_utils.decoder</code></h1>
+<h1 class="title">Module <code>vision_utils.image_conversion</code></h1>
 </header>
 <section id="section-intro">
 <p>ROS to OpenCV image converter</p>
 <p>This script can be imported as a module and contains the following public methods:</p>
 <ul>
-<li><code><a title="vision_utils.decoder.check_for_type" href="#vision_utils.decoder.check_for_type">check_for_type()</a></code></li>
-<li><code><a title="vision_utils.decoder.decode_CompressedImage_depth" href="#vision_utils.decoder.decode_CompressedImage_depth">decode_CompressedImage_depth()</a></code></li>
-<li><code><a title="vision_utils.decoder.decode_Image_depth" href="#vision_utils.decoder.decode_Image_depth">decode_Image_depth()</a></code></li>
-<li><code><a title="vision_utils.decoder.decode_Image_RGB" href="#vision_utils.decoder.decode_Image_RGB">decode_Image_RGB()</a></code></li>
-<li><code><a title="vision_utils.decoder.decode_CompressedImage_RGB" href="#vision_utils.decoder.decode_CompressedImage_RGB">decode_CompressedImage_RGB()</a></code></li>
+<li><code><a title="vision_utils.image_conversion.check_for_type" href="#vision_utils.image_conversion.check_for_type">check_for_type()</a></code></li>
+<li><code><a title="vision_utils.image_conversion.decode_CompressedImage_depth" href="#vision_utils.image_conversion.decode_CompressedImage_depth">decode_CompressedImage_depth()</a></code></li>
+<li><code><a title="vision_utils.image_conversion.decode_Image_depth" href="#vision_utils.image_conversion.decode_Image_depth">decode_Image_depth()</a></code></li>
+<li><code><a title="vision_utils.image_conversion.decode_Image_RGB" href="#vision_utils.image_conversion.decode_Image_RGB">decode_Image_RGB()</a></code></li>
+<li><code><a title="vision_utils.image_conversion.decode_CompressedImage_RGB" href="#vision_utils.image_conversion.decode_CompressedImage_RGB">decode_CompressedImage_RGB()</a></code></li>
 </ul>
 <details class="source">
 <summary>
@@ -54,8 +54,13 @@ import numpy as np
 import rospy
 from sensor_msgs.msg import Image, CompressedImage
 
-# NOTE: requires OpenCV &gt;= 3.0 (as the one I have locally installed is), with older versions,
-#       cv2.IMREAD_UNCHANGED and cv2.IMREAD_COLOR should be adapted
+enconding = {&#34;16UC1&#34;: {&#39;dtype&#39;: np.uint16,
+                       &#39;to_m&#39;:  1e-3        # multiplicative factor to convert depth data into m
+                       }, 
+             &#34;32FC1&#34;: {&#39;dtype&#39;: np.float32,
+                       &#39;to_m&#39;:  1.0         # multiplicative factor to convert depth data into m
+                       }
+            }
 
 def check_for_type(topic):
     &#34;&#34;&#34; Check wheter a topic is publishing Image or CompressedImage messages.
@@ -84,14 +89,14 @@ def check_for_type(topic):
 
     return msg_type, encoding
 
-def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
+
+def decode_CompressedImage_depth(msg, header_size = 12):
     &#34;&#34;&#34;Convert a ROS CompressedImage message with depth information into a numpy storing the depth information in the specified measurement unit.
-    From https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/
+    From: https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/
 
     Args:
         msg (sensor_msgs.CompressedImage): The ROS CompressedImage message to be converted.
         header_size (int, optional): The size of the message header in bytes. Defaults to 12.
-        depth_in_m (bool, optional): If `True`, depth will be expressed in m, otherwise in `mm`. Defaults to `True`.
 
     Raises:
         Exception: Raised if the compression type (extracted from the `format` field of the message) does not have the expected `compressedDepth` value.
@@ -99,7 +104,7 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
         Exception: Raised if the decoding from the specified datatype is not implemented.
 
     Returns:
-        A tuple with depth data as a `np.ndarray` and the original depth format as a string.
+        Depth data in a `np.ndarray` in `np.float32` format.
     &#34;&#34;&#34;
     # &#39;msg&#39; as type CompressedImage
     depth_fmt, compr_type = msg.format.split(&#39;;&#39;)
@@ -107,7 +112,7 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
     depth_fmt = depth_fmt.strip()
     compr_type = compr_type.strip()
     if compr_type != &#34;compressedDepth&#34;:
-        raise Exception(&#34;Compression type is not &#39;compressedDepth&#39;.&#34;
+        raise Exception(&#34;Compression type is not &#39;compressedDepth&#39; but {}.&#34;.format(compr_type),
                         &#34;You probably subscribed to the wrong topic.&#34;)
 
     # Remove header from raw data
@@ -119,10 +124,9 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
         raise Exception(&#34;Could not decode compressed depth image.&#34;
                         &#34;You may need to change &#39;header_size&#39;.&#34;)
 
-    if depth_fmt == &#34;16UC1&#34;:    # data in mm as uint16
-        # Convert data to m if requested by the user (dividing should automatically turn depth data
-        # into float)
-        depth_data = depth_img_raw / 1000 if depth_in_m else depth_img_raw
+    if depth_fmt == &#34;16UC1&#34;:
+        # Convert data to m (data are originally in mm as uint16)
+        depth_data = depth_img_raw.astype(np.float32) * 1e-3
     elif depth_fmt == &#34;32FC1&#34;:
         raw_header = msg.data[:header_size]
         # header: int, float, float
@@ -130,41 +134,36 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
         depth_data = depthQuantA / (depth_img_raw.astype(np.float32)-depthQuantB)
         # filter max values
         depth_data[depth_img_raw == 0] = 0
-
-        # depth_data provides distance in meters as f32, convert to mm if request by the user
-        depth_data = depth_data if depth_in_m else (depth_data * 1000).astype(np.uint16)
         # reshape needed here?
     else:
         raise Exception(&#34;Decoding of &#39;&#34; + depth_fmt + &#34;&#39; is not implemented!&#34;)
+    
+    return  depth_data
 
-    # Data are uint16 if in mm, in float32 if in m. Also the encoding is returned.
-    return  depth_data, depth_fmt
 
-
-def decode_Image_depth(msg, depth_in_m = True):
-    &#34;&#34;&#34;Convert a ROS Image message with depth information into a numpy storing the depth information in the specified measurement unit.
+def decode_Image_depth(msg):
+    &#34;&#34;&#34;Convert a ROS Image message with depth information into a numpy array.
 
     Args:
         msg (sensor_msgs.Image): The ROS Image message to be converted.
-        depth_in_m (bool, optional): If `True`, depth will be expressed in m, otherwise in mm. Defaults to `True`.
 
     Returns:
-        A tuple with depth data as a `np.ndarray` and the original depth format as a string.
+        Depth data in a `np.ndarray` in `np.float32` format.
     &#34;&#34;&#34;
     if msg.encoding == &#34;16UC1&#34;:
-        byte_array = np.fromstring(msg.data, np.uint16)      # array of bytes
-        depth_data = np.frombuffer(byte_array, dtype = np.uint16)  # numpy 2D array
-        depth_data = (depth_data / 1000) if depth_in_m else depth_data
+        byte_array = np.fromstring(msg.data, np.uint16)             # array of bytes
+        depth_data = np.frombuffer(byte_array, dtype = np.uint16)   # numpy 2D array
+        depth_data = depth_data.astype(np.float32) * 1e-3
     elif msg.encoding == &#34;32FC1&#34;:
-        byte_array = np.fromstring(msg.data, np.float32)      # array of bytes
+        byte_array = np.fromstring(msg.data, np.float32)            # array of bytes
         depth_data = np.frombuffer(byte_array, dtype = np.float32)  # numpy 2D array
-        depth_data = depth_data if depth_in_m else (depth_data * 1000).astype(np.uint16)
+        depth_data = depth_data.astype(np.float32) * 1
     
     depth_data = np.reshape(depth_data,
                             newshape = (msg.height, msg.width)
                             )
-    # Data are uint16 if in mm, in float32 if in m. Also the encoding is returned.
-    return  depth_data, msg.encoding
+    
+    return  depth_data
 
 
 def decode_Image_RGB(msg):
@@ -174,21 +173,20 @@ def decode_Image_RGB(msg):
         msg (sensor_msgs.Image): The ROS message to convert.
 
     Returns:
-        An OpenCV image object.
+        RGB data in a `np.ndarray` in `np.uint8` format.
     &#34;&#34;&#34;
-    byte_array = np.frombuffer(msg.data, np.uint8)
-    image = cv2.imdecode(byte_array, cv2.IMREAD_COLOR)
-    return image
+    image = np.frombuffer(msg.data, np.uint8)
+    return image.reshape((msg.height, msg.width, 3))
 
 
 def decode_CompressedImage_RGB(msg):
     &#34;&#34;&#34;Convert a ROS Image message into an OpenCV image.
-
+    From: https://stackoverflow.com/questions/69718148/access-image-via-opencv-in-python-ros-kinetic 
     Args:
         msg (sensor_msgs.CompressedImage): The ROS message to convert.
 
     Returns:
-        An OpenCV image object.
+        RGB data in a `np.ndarray` in `np.uint8` format.
     &#34;&#34;&#34;
     byte_array = np.frombuffer(msg.data, np.uint8)
     image = cv2.imdecode(byte_array, cv2.IMREAD_COLOR)
@@ -202,7 +200,7 @@ def decode_CompressedImage_RGB(msg):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="vision_utils.decoder.check_for_type"><code class="name flex">
+<dt id="vision_utils.image_conversion.check_for_type"><code class="name flex">
 <span>def <span class="ident">check_for_type</span></span>(<span>topic)</span>
 </code></dt>
 <dd>
@@ -246,50 +244,49 @@ def decode_CompressedImage_RGB(msg):
     return msg_type, encoding</code></pre>
 </details>
 </dd>
-<dt id="vision_utils.decoder.decode_CompressedImage_RGB"><code class="name flex">
+<dt id="vision_utils.image_conversion.decode_CompressedImage_RGB"><code class="name flex">
 <span>def <span class="ident">decode_CompressedImage_RGB</span></span>(<span>msg)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Convert a ROS Image message into an OpenCV image.</p>
+<div class="desc"><p>Convert a ROS Image message into an OpenCV image.
+From: <a href="https://stackoverflow.com/questions/69718148/access-image-via-opencv-in-python-ros-kinetic">https://stackoverflow.com/questions/69718148/access-image-via-opencv-in-python-ros-kinetic</a> </p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>msg</code></strong> :&ensp;<code>sensor_msgs.CompressedImage</code></dt>
 <dd>The ROS message to convert.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>An OpenCV image object.</p></div>
+<p>RGB data in a <code>np.ndarray</code> in <code>np.uint8</code> format.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def decode_CompressedImage_RGB(msg):
     &#34;&#34;&#34;Convert a ROS Image message into an OpenCV image.
-
+    From: https://stackoverflow.com/questions/69718148/access-image-via-opencv-in-python-ros-kinetic 
     Args:
         msg (sensor_msgs.CompressedImage): The ROS message to convert.
 
     Returns:
-        An OpenCV image object.
+        RGB data in a `np.ndarray` in `np.uint8` format.
     &#34;&#34;&#34;
     byte_array = np.frombuffer(msg.data, np.uint8)
     image = cv2.imdecode(byte_array, cv2.IMREAD_COLOR)
     return image</code></pre>
 </details>
 </dd>
-<dt id="vision_utils.decoder.decode_CompressedImage_depth"><code class="name flex">
-<span>def <span class="ident">decode_CompressedImage_depth</span></span>(<span>msg, header_size=12, depth_in_m=True)</span>
+<dt id="vision_utils.image_conversion.decode_CompressedImage_depth"><code class="name flex">
+<span>def <span class="ident">decode_CompressedImage_depth</span></span>(<span>msg, header_size=12)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Convert a ROS CompressedImage message with depth information into a numpy storing the depth information in the specified measurement unit.
-From <a href="https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/">https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/</a></p>
+From: <a href="https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/">https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/</a></p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>msg</code></strong> :&ensp;<code>sensor_msgs.CompressedImage</code></dt>
 <dd>The ROS CompressedImage message to be converted.</dd>
 <dt><strong><code>header_size</code></strong> :&ensp;<code>int</code>, optional</dt>
 <dd>The size of the message header in bytes. Defaults to 12.</dd>
-<dt><strong><code>depth_in_m</code></strong> :&ensp;<code>bool</code>, optional</dt>
-<dd>If <code>True</code>, depth will be expressed in m, otherwise in <code>mm</code>. Defaults to <code>True</code>.</dd>
 </dl>
 <h2 id="raises">Raises</h2>
 <dl>
@@ -301,19 +298,18 @@ From <a href="https://answers.ros.org/question/249775/display-compresseddepth-im
 <dd>Raised if the decoding from the specified datatype is not implemented.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>A tuple with depth data as a <code>np.ndarray</code> and the original depth format as a string.</p></div>
+<p>Depth data in a <code>np.ndarray</code> in <code>np.float32</code> format.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
+<pre><code class="python">def decode_CompressedImage_depth(msg, header_size = 12):
     &#34;&#34;&#34;Convert a ROS CompressedImage message with depth information into a numpy storing the depth information in the specified measurement unit.
-    From https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/
+    From: https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/
 
     Args:
         msg (sensor_msgs.CompressedImage): The ROS CompressedImage message to be converted.
         header_size (int, optional): The size of the message header in bytes. Defaults to 12.
-        depth_in_m (bool, optional): If `True`, depth will be expressed in m, otherwise in `mm`. Defaults to `True`.
 
     Raises:
         Exception: Raised if the compression type (extracted from the `format` field of the message) does not have the expected `compressedDepth` value.
@@ -321,7 +317,7 @@ From <a href="https://answers.ros.org/question/249775/display-compresseddepth-im
         Exception: Raised if the decoding from the specified datatype is not implemented.
 
     Returns:
-        A tuple with depth data as a `np.ndarray` and the original depth format as a string.
+        Depth data in a `np.ndarray` in `np.float32` format.
     &#34;&#34;&#34;
     # &#39;msg&#39; as type CompressedImage
     depth_fmt, compr_type = msg.format.split(&#39;;&#39;)
@@ -329,7 +325,7 @@ From <a href="https://answers.ros.org/question/249775/display-compresseddepth-im
     depth_fmt = depth_fmt.strip()
     compr_type = compr_type.strip()
     if compr_type != &#34;compressedDepth&#34;:
-        raise Exception(&#34;Compression type is not &#39;compressedDepth&#39;.&#34;
+        raise Exception(&#34;Compression type is not &#39;compressedDepth&#39; but {}.&#34;.format(compr_type),
                         &#34;You probably subscribed to the wrong topic.&#34;)
 
     # Remove header from raw data
@@ -341,10 +337,9 @@ From <a href="https://answers.ros.org/question/249775/display-compresseddepth-im
         raise Exception(&#34;Could not decode compressed depth image.&#34;
                         &#34;You may need to change &#39;header_size&#39;.&#34;)
 
-    if depth_fmt == &#34;16UC1&#34;:    # data in mm as uint16
-        # Convert data to m if requested by the user (dividing should automatically turn depth data
-        # into float)
-        depth_data = depth_img_raw / 1000 if depth_in_m else depth_img_raw
+    if depth_fmt == &#34;16UC1&#34;:
+        # Convert data to m (data are originally in mm as uint16)
+        depth_data = depth_img_raw.astype(np.float32) * 1e-3
     elif depth_fmt == &#34;32FC1&#34;:
         raw_header = msg.data[:header_size]
         # header: int, float, float
@@ -352,18 +347,14 @@ From <a href="https://answers.ros.org/question/249775/display-compresseddepth-im
         depth_data = depthQuantA / (depth_img_raw.astype(np.float32)-depthQuantB)
         # filter max values
         depth_data[depth_img_raw == 0] = 0
-
-        # depth_data provides distance in meters as f32, convert to mm if request by the user
-        depth_data = depth_data if depth_in_m else (depth_data * 1000).astype(np.uint16)
         # reshape needed here?
     else:
         raise Exception(&#34;Decoding of &#39;&#34; + depth_fmt + &#34;&#39; is not implemented!&#34;)
-
-    # Data are uint16 if in mm, in float32 if in m. Also the encoding is returned.
-    return  depth_data, depth_fmt</code></pre>
+    
+    return  depth_data</code></pre>
 </details>
 </dd>
-<dt id="vision_utils.decoder.decode_Image_RGB"><code class="name flex">
+<dt id="vision_utils.image_conversion.decode_Image_RGB"><code class="name flex">
 <span>def <span class="ident">decode_Image_RGB</span></span>(<span>msg)</span>
 </code></dt>
 <dd>
@@ -374,7 +365,7 @@ From <a href="https://answers.ros.org/question/249775/display-compresseddepth-im
 <dd>The ROS message to convert.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>An OpenCV image object.</p></div>
+<p>RGB data in a <code>np.ndarray</code> in <code>np.uint8</code> format.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -386,55 +377,51 @@ From <a href="https://answers.ros.org/question/249775/display-compresseddepth-im
         msg (sensor_msgs.Image): The ROS message to convert.
 
     Returns:
-        An OpenCV image object.
+        RGB data in a `np.ndarray` in `np.uint8` format.
     &#34;&#34;&#34;
-    byte_array = np.frombuffer(msg.data, np.uint8)
-    image = cv2.imdecode(byte_array, cv2.IMREAD_COLOR)
-    return image</code></pre>
+    image = np.frombuffer(msg.data, np.uint8)
+    return image.reshape((msg.height, msg.width, 3))</code></pre>
 </details>
 </dd>
-<dt id="vision_utils.decoder.decode_Image_depth"><code class="name flex">
-<span>def <span class="ident">decode_Image_depth</span></span>(<span>msg, depth_in_m=True)</span>
+<dt id="vision_utils.image_conversion.decode_Image_depth"><code class="name flex">
+<span>def <span class="ident">decode_Image_depth</span></span>(<span>msg)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Convert a ROS Image message with depth information into a numpy storing the depth information in the specified measurement unit.</p>
+<div class="desc"><p>Convert a ROS Image message with depth information into a numpy array.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>msg</code></strong> :&ensp;<code>sensor_msgs.Image</code></dt>
 <dd>The ROS Image message to be converted.</dd>
-<dt><strong><code>depth_in_m</code></strong> :&ensp;<code>bool</code>, optional</dt>
-<dd>If <code>True</code>, depth will be expressed in m, otherwise in mm. Defaults to <code>True</code>.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>A tuple with depth data as a <code>np.ndarray</code> and the original depth format as a string.</p></div>
+<p>Depth data in a <code>np.ndarray</code> in <code>np.float32</code> format.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decode_Image_depth(msg, depth_in_m = True):
-    &#34;&#34;&#34;Convert a ROS Image message with depth information into a numpy storing the depth information in the specified measurement unit.
+<pre><code class="python">def decode_Image_depth(msg):
+    &#34;&#34;&#34;Convert a ROS Image message with depth information into a numpy array.
 
     Args:
         msg (sensor_msgs.Image): The ROS Image message to be converted.
-        depth_in_m (bool, optional): If `True`, depth will be expressed in m, otherwise in mm. Defaults to `True`.
 
     Returns:
-        A tuple with depth data as a `np.ndarray` and the original depth format as a string.
+        Depth data in a `np.ndarray` in `np.float32` format.
     &#34;&#34;&#34;
     if msg.encoding == &#34;16UC1&#34;:
-        byte_array = np.fromstring(msg.data, np.uint16)      # array of bytes
-        depth_data = np.frombuffer(byte_array, dtype = np.uint16)  # numpy 2D array
-        depth_data = (depth_data / 1000) if depth_in_m else depth_data
+        byte_array = np.fromstring(msg.data, np.uint16)             # array of bytes
+        depth_data = np.frombuffer(byte_array, dtype = np.uint16)   # numpy 2D array
+        depth_data = depth_data.astype(np.float32) * 1e-3
     elif msg.encoding == &#34;32FC1&#34;:
-        byte_array = np.fromstring(msg.data, np.float32)      # array of bytes
+        byte_array = np.fromstring(msg.data, np.float32)            # array of bytes
         depth_data = np.frombuffer(byte_array, dtype = np.float32)  # numpy 2D array
-        depth_data = depth_data if depth_in_m else (depth_data * 1000).astype(np.uint16)
+        depth_data = depth_data.astype(np.float32) * 1
     
     depth_data = np.reshape(depth_data,
                             newshape = (msg.height, msg.width)
                             )
-    # Data are uint16 if in mm, in float32 if in m. Also the encoding is returned.
-    return  depth_data, msg.encoding</code></pre>
+    
+    return  depth_data</code></pre>
 </details>
 </dd>
 </dl>
@@ -455,11 +442,11 @@ From <a href="https://answers.ros.org/question/249775/display-compresseddepth-im
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="vision_utils.decoder.check_for_type" href="#vision_utils.decoder.check_for_type">check_for_type</a></code></li>
-<li><code><a title="vision_utils.decoder.decode_CompressedImage_RGB" href="#vision_utils.decoder.decode_CompressedImage_RGB">decode_CompressedImage_RGB</a></code></li>
-<li><code><a title="vision_utils.decoder.decode_CompressedImage_depth" href="#vision_utils.decoder.decode_CompressedImage_depth">decode_CompressedImage_depth</a></code></li>
-<li><code><a title="vision_utils.decoder.decode_Image_RGB" href="#vision_utils.decoder.decode_Image_RGB">decode_Image_RGB</a></code></li>
-<li><code><a title="vision_utils.decoder.decode_Image_depth" href="#vision_utils.decoder.decode_Image_depth">decode_Image_depth</a></code></li>
+<li><code><a title="vision_utils.image_conversion.check_for_type" href="#vision_utils.image_conversion.check_for_type">check_for_type</a></code></li>
+<li><code><a title="vision_utils.image_conversion.decode_CompressedImage_RGB" href="#vision_utils.image_conversion.decode_CompressedImage_RGB">decode_CompressedImage_RGB</a></code></li>
+<li><code><a title="vision_utils.image_conversion.decode_CompressedImage_depth" href="#vision_utils.image_conversion.decode_CompressedImage_depth">decode_CompressedImage_depth</a></code></li>
+<li><code><a title="vision_utils.image_conversion.decode_Image_RGB" href="#vision_utils.image_conversion.decode_Image_RGB">decode_Image_RGB</a></code></li>
+<li><code><a title="vision_utils.image_conversion.decode_Image_depth" href="#vision_utils.image_conversion.decode_Image_depth">decode_Image_depth</a></code></li>
 </ul>
 </li>
 </ul>
