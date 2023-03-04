@@ -17,8 +17,13 @@ import numpy as np
 import rospy
 from sensor_msgs.msg import Image, CompressedImage
 
-# NOTE: requires OpenCV >= 3.0 (as the one I have locally installed is), with older versions,
-#       cv2.IMREAD_UNCHANGED and cv2.IMREAD_COLOR should be adapted
+enconding = {"16UC1": {'dtype': np.uint16,
+                       'to_m':  1e-3        # multiplicative factor to convert depth data into m
+                       }, 
+             "32FC1": {'dtype': np.float32,
+                       'to_m':  1.0         # multiplicative factor to convert depth data into m
+                       }
+            }
 
 def check_for_type(topic):
     """ Check wheter a topic is publishing Image or CompressedImage messages.
@@ -47,14 +52,14 @@ def check_for_type(topic):
 
     return msg_type, encoding
 
-def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
+
+def decode_CompressedImage_depth(msg, header_size = 12):
     """Convert a ROS CompressedImage message with depth information into a numpy storing the depth information in the specified measurement unit.
-    From https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/
+    From: https://answers.ros.org/question/249775/display-compresseddepth-image-python-cv2/
 
     Args:
         msg (sensor_msgs.CompressedImage): The ROS CompressedImage message to be converted.
         header_size (int, optional): The size of the message header in bytes. Defaults to 12.
-        depth_in_m (bool, optional): If `True`, depth will be expressed in m, otherwise in `mm`. Defaults to `True`.
 
     Raises:
         Exception: Raised if the compression type (extracted from the `format` field of the message) does not have the expected `compressedDepth` value.
@@ -62,7 +67,7 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
         Exception: Raised if the decoding from the specified datatype is not implemented.
 
     Returns:
-        A tuple with depth data as a `np.ndarray` and the original depth format as a string.
+        Depth data in a `np.ndarray` in `np.float32` format.
     """
     # 'msg' as type CompressedImage
     depth_fmt, compr_type = msg.format.split(';')
@@ -70,9 +75,8 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
     depth_fmt = depth_fmt.strip()
     compr_type = compr_type.strip()
     if compr_type != "compressedDepth":
-        raise Exception("Compression type is not 'compressedDepth'."
+        raise Exception("Compression type is not 'compressedDepth' but {}.".format(compr_type),
                         "You probably subscribed to the wrong topic.")
-        # TODO. Check if subscribed to a compressed topic instead of compressedDepth and return appropriate error msg
 
     # Remove header from raw data
     raw_data = msg.data[header_size:]
@@ -83,10 +87,9 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
         raise Exception("Could not decode compressed depth image."
                         "You may need to change 'header_size'.")
 
-    if depth_fmt == "16UC1":    # data in mm as uint16
-        # Convert data to m if requested by the user (dividing should automatically turn depth data
-        # into float)
-        depth_data = depth_img_raw.astype(np.float32) / 1000.0 if depth_in_m else depth_img_raw
+    if depth_fmt == "16UC1":
+        # Convert data to m (data are originally in mm as uint16)
+        depth_data = depth_img_raw.astype(np.float32) * 1e-3
     elif depth_fmt == "32FC1":
         raw_header = msg.data[:header_size]
         # header: int, float, float
@@ -94,41 +97,36 @@ def decode_CompressedImage_depth(msg, header_size = 12, depth_in_m = True):
         depth_data = depthQuantA / (depth_img_raw.astype(np.float32)-depthQuantB)
         # filter max values
         depth_data[depth_img_raw == 0] = 0
-
-        # depth_data provides distance in meters as f32, convert to mm if request by the user
-        depth_data = depth_data if depth_in_m else (depth_data * 1000).astype(np.uint16)
         # reshape needed here?
     else:
         raise Exception("Decoding of '" + depth_fmt + "' is not implemented!")
+    
+    return  depth_data
 
-    # Data are uint16 if in mm, in float32 if in m. Also the encoding is returned.
-    return  depth_data, depth_fmt
 
-
-def decode_Image_depth(msg, depth_in_m = True):
-    """Convert a ROS Image message with depth information into a numpy storing the depth information in the specified measurement unit.
+def decode_Image_depth(msg):
+    """Convert a ROS Image message with depth information into a numpy array.
 
     Args:
         msg (sensor_msgs.Image): The ROS Image message to be converted.
-        depth_in_m (bool, optional): If `True`, depth will be expressed in m, otherwise in mm. Defaults to `True`.
 
     Returns:
-        A tuple with depth data as a `np.ndarray` and the original depth format as a string.
+        Depth data in a `np.ndarray` in `np.float32` format.
     """
     if msg.encoding == "16UC1":
-        byte_array = np.fromstring(msg.data, np.uint16)      # array of bytes
-        depth_data = np.frombuffer(byte_array, dtype = np.uint16)  # numpy 2D array
-        depth_data = (depth_data.astype(np.float32) / 1000.0) if depth_in_m else depth_data
+        byte_array = np.fromstring(msg.data, np.uint16)             # array of bytes
+        depth_data = np.frombuffer(byte_array, dtype = np.uint16)   # numpy 2D array
+        depth_data = depth_data.astype(np.float32) * 1e-3
     elif msg.encoding == "32FC1":
-        byte_array = np.fromstring(msg.data, np.float32)      # array of bytes
+        byte_array = np.fromstring(msg.data, np.float32)            # array of bytes
         depth_data = np.frombuffer(byte_array, dtype = np.float32)  # numpy 2D array
-        depth_data = depth_data if depth_in_m else (depth_data * 1000).astype(np.uint16)
+        depth_data = depth_data.astype(np.float32) * 1
     
     depth_data = np.reshape(depth_data,
                             newshape = (msg.height, msg.width)
                             )
-    # Data are uint16 if in mm, in float32 if in m. Also the encoding is returned.
-    return  depth_data, msg.encoding
+    
+    return  depth_data
 
 
 def decode_Image_RGB(msg):
@@ -138,21 +136,20 @@ def decode_Image_RGB(msg):
         msg (sensor_msgs.Image): The ROS message to convert.
 
     Returns:
-        An OpenCV image object.
+        RGB data in a `np.ndarray` in `np.uint8` format.
     """
-    byte_array = np.frombuffer(msg.data, np.uint8)
-    image = cv2.imdecode(byte_array, cv2.IMREAD_COLOR)
-    return image
+    image = np.frombuffer(msg.data, np.uint8)
+    return image.reshape((msg.height, msg.width, 3))
 
 
 def decode_CompressedImage_RGB(msg):
     """Convert a ROS Image message into an OpenCV image.
-
+    From: https://stackoverflow.com/questions/69718148/access-image-via-opencv-in-python-ros-kinetic 
     Args:
         msg (sensor_msgs.CompressedImage): The ROS message to convert.
 
     Returns:
-        An OpenCV image object.
+        RGB data in a `np.ndarray` in `np.uint8` format.
     """
     byte_array = np.frombuffer(msg.data, np.uint8)
     image = cv2.imdecode(byte_array, cv2.IMREAD_COLOR)
